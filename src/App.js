@@ -15,9 +15,11 @@ function App() {
   };
 
   return (
-    <div>
-      <Sidebar onAddItem={handleAddItem} onItemClick={handleItemClick} />
-      <div className="ml-80 bg-base-100 h-full w-full fixed">
+    <div className="flex">
+      <div className="w-80">
+        <Sidebar onAddItem={handleAddItem} onItemClick={handleItemClick} />
+      </div>
+      <div className="grow">
         <ItemDetails items={items} selectedItem={selectedItem} />
       </div>
     </div>

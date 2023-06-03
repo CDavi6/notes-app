@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addItem } from "../store";
 
-function Sidebar({ onAddItem, onItemClick }) {
+function Sidebar({ onItemClick }) {
   const dispatch = useDispatch();
   const items = useSelector((state) => state.items);
 
@@ -15,7 +15,7 @@ function Sidebar({ onAddItem, onItemClick }) {
     if (title !== "" && text !== "") {
       const newItem = { title, text };
       dispatch(addItem(newItem));
-      onAddItem(newItem); // Pass the new item to the parent component
+      onItemClick(newItem.id);
       clearInput();
     }
   };
@@ -26,40 +26,41 @@ function Sidebar({ onAddItem, onItemClick }) {
   };
 
   return (
-    <>
-      <div className="h-full w-80 fixed top-0 left-0 bg-neutral overflow-x-hidden flex flex-col justify-top">
-        <input
-          type="text"
-          placeholder="Title"
-          className="input input-bordered m-2"
-          ref={inputTitleRef}
-        />
-        <input
-          type="text"
-          placeholder="Text"
-          className="input input-bordered m-2"
-          ref={inputTextRef}
-        />
-        <button className="btn btn-success m-2" onClick={addItemToList}>
-          Create Note
-        </button>
-        <br />
-        <br />
-        <div>
-          <ul>
-            {items.map((item, index) => (
-              <button
-                className="btn btn-primary m-2 w-72"
-                key={index}
-                onClick={() => onItemClick(item.title)} // Update the onClick handler
-              >
-                {item.title}
-              </button>
-            ))}
-          </ul>
-        </div>
+    <div className="h-full w-80 fixed top-0 left-0 bg-base-200 overflow-x-hidden flex flex-col justify-top">
+      <input
+        type="text"
+        placeholder="Title"
+        className="input input-bordered m-2"
+        ref={inputTitleRef}
+      />
+      <input
+        type="text"
+        placeholder="Text"
+        className="input input-bordered m-2"
+        ref={inputTextRef}
+      />
+      <button
+        className="btn btn-success m-4"
+        onClick={addItemToList}
+      >
+        Create Note
+      </button>
+      <br />
+      <br />
+      <div>
+        <ul>
+          {items.map((item, index) => (
+            <button
+              className="btn btn-primary w-72 m-4"
+              key={index}
+              onClick={() => onItemClick(item.title)}
+            >
+              {item.title}
+            </button>
+          ))}
+        </ul>
       </div>
-    </>
+    </div>
   );
 }
 

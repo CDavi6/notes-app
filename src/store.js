@@ -1,4 +1,3 @@
-// store.js
 import { configureStore, createSlice } from "@reduxjs/toolkit";
 
 const itemsSlice = createSlice({
@@ -8,10 +7,13 @@ const itemsSlice = createSlice({
     addItem: (state, action) => {
       state.push(action.payload);
     },
+    updateItems: (state, action) => {
+      return action.payload;
+    },
   },
 });
 
-export const { addItem } = itemsSlice.actions;
+export const { addItem, updateItems } = itemsSlice.actions;
 
 const store = configureStore({
   reducer: {

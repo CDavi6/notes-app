@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Sidebar from "./components/Sidebar";
-import ItemDetails from "./components/ItemDetails";
+import Note from "./components/Note";
 
 function App() {
   const [items, setItems] = useState([]);
@@ -19,8 +19,8 @@ function App() {
       <div className="w-80">
         <Sidebar onAddItem={handleAddItem} onItemClick={handleItemClick} />
       </div>
-      <div className="grow">
-        <ItemDetails items={items} selectedItem={selectedItem} />
+      <div className="flex-1">
+        <Note items={items} selectedItem={selectedItem} />
       </div>
     </div>
   );

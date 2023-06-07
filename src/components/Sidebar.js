@@ -26,7 +26,7 @@ function Sidebar({ onItemClick }) {
   };
 
   return (
-    <div className="h-full w-80 fixed top-0 left-0 bg-base-200 overflow-x-hidden flex flex-col justify-top">
+    <div className="w-20 h-full sm:w-40 md:w-60 lg:w-80 fixed top-0 left-0 bg-base-200 overflow-x-hidden flex flex-col justify-top">
       <input
         type="text"
         placeholder="Title"
@@ -39,10 +39,7 @@ function Sidebar({ onItemClick }) {
         className="input input-bordered m-2"
         ref={inputTextRef}
       />
-      <button
-        className="btn btn-success m-4"
-        onClick={addItemToList}
-      >
+      <button className="btn btn-success m-4" onClick={addItemToList}>
         Create Note
       </button>
       <br />
@@ -51,7 +48,7 @@ function Sidebar({ onItemClick }) {
         <ul>
           {items.map((item, index) => (
             <button
-              className="btn btn-primary w-72 m-4"
+              className="btn btn-primary w-10 m-4"
               key={index}
               onClick={() => onItemClick(item.title)}
             >

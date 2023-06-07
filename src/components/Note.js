@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { updateItems, deleteItem } from "../store";
 
-function ItemDetails({ selectedItem }) {
+function Note({ selectedItem }) {
   const items = useSelector((state) => state.items);
   const dispatch = useDispatch();
   const [editedText, setEditedText] = useState("");
@@ -47,7 +47,7 @@ function ItemDetails({ selectedItem }) {
       {selectedItemData && (
         <>
           <div className="flex justify-center">
-            <button className="btn btn-primary w-60 m-4">
+            <button className="btn btn-primary w-full lg:w-60 m-4 truncate">
               {selectedItemData.title}
             </button>
           </div>
@@ -60,32 +60,32 @@ function ItemDetails({ selectedItem }) {
               readOnly={!isEditing}
             ></textarea>
           </div>
-          <div className="flex justify-center">
+          <div className="flex flex-wrap justify-center">
             {isEditing ? (
               <>
                 <button
-                  className="btn btn-success m-4 w-40"
+                  className="btn btn-success m-2 w-40"
                   onClick={handleSave}
                 >
                   Save
                 </button>
-                <button className="btn btn-info m-4 w-40" onClick={handleCopy}>
+                <button className="btn btn-info m-2 w-40" onClick={handleCopy}>
                   Copy
                 </button>
                 <button
-                  className="btn btn-accent m-4 w-40"
+                  className="btn btn-accent m-2 w-40"
                   onClick={handlePaste}
                 >
                   Paste
                 </button>
                 <button
-                  className="btn btn-warning m-4 w-40"
+                  className="btn btn-warning m-2 w-40"
                   onClick={handleClear}
                 >
                   Clear
                 </button>
                 <button
-                  className="btn btn-error m-4 w-40"
+                  className="btn btn-error m-2 w-40"
                   onClick={handleDelete}
                 >
                   Delete
@@ -93,7 +93,7 @@ function ItemDetails({ selectedItem }) {
               </>
             ) : (
               <button
-                className="btn btn-secondary m-4 w-40"
+                className="btn btn-secondary m-2 w-40"
                 onClick={handleEdit}
               >
                 Edit
@@ -106,4 +106,4 @@ function ItemDetails({ selectedItem }) {
   );
 }
 
-export default ItemDetails;
+export default Note;

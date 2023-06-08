@@ -1,14 +1,11 @@
 import { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon, PlusIcon } from "@heroicons/react/24/outline";
+import { useSelector, useDispatch } from "react-redux";
+import { addNote, deleteNote } from "../store";
+import {v4 as uuidv4} from 'uuid';
 
 const CreateBtn = [{ name: "Create Note", icon: PlusIcon }];
-
-const notes = [
-  { id: 1, name: "Grocery List", current: false },
-  { id: 2, name: "Todo List", current: false },
-  { id: 3, name: "Vacation Spots", current: false },
-];
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -16,6 +13,46 @@ function classNames(...classes) {
 
 export default function Main() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const [modalTitle, setModalTitle] = useState("");
+
+  const [noteId, setNoteId] = useState();
+  const [noteContent, setNoteContent] = useState();
+
+  const notes = useSelector((state) => state.notes);
+  const dispatch = useDispatch();
+
+  const addNoteHandler = () => {
+    const newNote = { id: uuidv4(), title: modalTitle, content: "" };
+    dispatch(addNote(newNote));
+  };
+
+  const modalTitleHandler = (event) => {
+    setModalTitle(event.target.value);
+  };
+
+  const resetModalTitle = () => {
+    setModalTitle("");
+  };
+
+  const getNoteById = (id) => {
+    const foundNote = notes.find((note) => note.id === id);
+    return foundNote ? foundNote : null;
+  };
+
+  const getTitleById = (id) => {
+    const foundNote = notes.find((note) => note.id === id);
+    return foundNote ? foundNote.title : null;
+  };
+
+  const setContentById = (id) => {
+    const foundNote = notes.find((note) => note.id === id);
+    setNoteContent(foundNote.content);
+  };
+
+  const deleteNoteById = () => {
+    dispatch(deleteNote(noteId));
+  };
 
   return (
     <>
@@ -80,7 +117,7 @@ export default function Main() {
                         width="32"
                         height="32"
                         fill="currentColor"
-                        class="bi bi-pencil-square"
+                        className="bi bi-pencil-square"
                         viewBox="0 0 16 16"
                       >
                         <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
@@ -104,7 +141,7 @@ export default function Main() {
                                       : "text-gray-400 hover:text-white hover:bg-gray-800",
                                     "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold cursor-pointer"
                                   )}
-                                  onClick={() => console.log("Clicked")}
+                                  onClick={() => window.my_modal_1.showModal()}
                                 >
                                   <item.icon
                                     className="h-6 w-6 shrink-0"
@@ -121,23 +158,26 @@ export default function Main() {
                             Your notes
                           </div>
                           <ul role="list" className="-mx-2 mt-2 space-y-1">
-                            {notes.map((note) => (
-                              <li key={note.name}>
-                                <a
-                                  className={classNames(
-                                    note.current
-                                      ? "bg-gray-800 text-white"
-                                      : "text-gray-400 hover:text-white hover:bg-gray-800",
-                                    "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold cursor-pointer"
-                                  )}
-                                >
-                                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-gray-400 group-hover:text-white">
-                                    {note.name.charAt(0).toUpperCase()}
-                                  </span>
-                                  <span className="truncate">{note.name}</span>
-                                </a>
-                              </li>
-                            ))}
+                            {notes &&
+                              notes.map((note) => (
+                                <li key={note.id}>
+                                  <a
+                                    className={classNames(
+                                      note.current
+                                        ? "bg-gray-800 text-white"
+                                        : "text-gray-400 hover:text-white hover:bg-gray-800",
+                                      "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold cursor-pointer"
+                                    )}
+                                  >
+                                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-gray-400 group-hover:text-white">
+                                      {note.title.charAt(0).toUpperCase()}
+                                    </span>
+                                    <span className="truncate">
+                                      {note.title}
+                                    </span>
+                                  </a>
+                                </li>
+                              ))}
                           </ul>
                         </li>
                       </ul>
@@ -159,7 +199,7 @@ export default function Main() {
                 width="32"
                 height="32"
                 fill="currentColor"
-                class="bi bi-pencil-square"
+                className="bi bi-pencil-square"
                 viewBox="0 0 16 16"
               >
                 <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
@@ -174,25 +214,26 @@ export default function Main() {
               <ul role="list" className="flex flex-1 flex-col gap-y-7">
                 <li>
                   <ul role="list" className="-mx-2 space-y-1">
-                    {CreateBtn.map((item) => (
-                      <li key={item.name}>
-                        <a
-                          className={classNames(
-                            item.current
-                              ? "bg-gray-800 text-white"
-                              : "text-gray-400 hover:text-white hover:bg-gray-800",
-                            "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold cursor-pointer"
-                          )}
-                          onClick={() => {console.log("Clicked!")}}
-                        >
-                          <item.icon
-                            className="h-6 w-6 shrink-0"
-                            aria-hidden="true"
-                          />
-                          {item.name}
-                        </a>
-                      </li>
-                    ))}
+                    {CreateBtn &&
+                      CreateBtn.map((item) => (
+                        <li key={item.name}>
+                          <a
+                            className={classNames(
+                              item.current
+                                ? "bg-gray-800 text-white"
+                                : "text-gray-400 hover:text-white hover:bg-gray-800",
+                              "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold cursor-pointer"
+                            )}
+                            onClick={() => window.my_modal_1.showModal()}
+                          >
+                            <item.icon
+                              className="h-6 w-6 shrink-0"
+                              aria-hidden="true"
+                            />
+                            {item.name}
+                          </a>
+                        </li>
+                      ))}
                   </ul>
                 </li>
                 <li>
@@ -200,23 +241,25 @@ export default function Main() {
                     Your notes
                   </div>
                   <ul role="list" className="-mx-2 mt-2 space-y-1">
-                    {notes.map((note) => (
-                      <li key={note.name}>
-                        <a
-                          className={classNames(
-                            note.current
-                              ? "bg-gray-800 text-white"
-                              : "text-gray-400 hover:text-white hover:bg-gray-800",
-                            "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold cursor-pointer"
-                          )}
-                        >
-                          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-gray-400 group-hover:text-white">
-                            {note.name.charAt(0).toUpperCase()}
-                          </span>
-                          <span className="truncate">{note.name}</span>
-                        </a>
-                      </li>
-                    ))}
+                    {notes &&
+                      notes.map((note) => (
+                        <li key={note.id}>
+                          <a
+                            className={classNames(
+                              note.current
+                                ? "bg-gray-800 text-white"
+                                : "text-gray-400 hover:text-white hover:bg-gray-800",
+                              "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold cursor-pointer"
+                            )}
+                            onClick={() => {setNoteId(note.id); setContentById(note.id)}}
+                          >
+                            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-gray-400 group-hover:text-white">
+                              {note.title.charAt(0).toUpperCase()}
+                            </span>
+                            <span className="truncate">{note.title}</span>
+                          </a>
+                        </li>
+                      ))}
                   </ul>
                 </li>
               </ul>
@@ -234,7 +277,75 @@ export default function Main() {
           </button>
         </div>
 
-        <main className="py-10 lg:pl-72"></main>
+        <main className="py-10 lg:pl-72">
+          {/* <-- Create Note Modal --> */}
+          <div className="px-4 sm:px-6 lg:px-8">
+            <dialog id="my_modal_1" className="modal">
+              <form method="dialog" className="modal-box">
+                <h3 className="font-bold text-lg">NEW NOTE</h3>
+                <br />
+                <div className="relative">
+                  <label
+                    htmlFor="name"
+                    className="absolute -top-2 left-2 inline-block bg-base-100 px-1 text-xs font-medium text-gray-200"
+                  >
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    id="name"
+                    className="block w-full rounded-md border-0 py-1.5 bg-base-100 text-gray-200 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    placeholder="Title"
+                    onChange={modalTitleHandler}
+                    value={modalTitle}
+                  />
+                </div>
+                <div className="modal-action">
+                  {/* if there is a button in form, it will close the modal */}
+                  <button
+                    className="btn btn-success"
+                    onClick={() => {
+                      resetModalTitle();
+                      addNoteHandler();
+                    }}
+                  >
+                    Confirm
+                  </button>
+                  <button
+                    className="btn btn-error"
+                    onClick={() => {
+                      resetModalTitle();
+                    }}
+                  >
+                    Close
+                  </button>
+                </div>
+              </form>
+            </dialog>
+          </div>
+          {/* <-- Create Note Modal --> */}
+
+          <div>
+            <label
+              htmlFor="comment"
+              className="block text-sm font-medium leading-6 text-gray-200"
+            >
+              {getTitleById(noteId)}
+            </label>
+            <div className="mt-2">
+              <textarea
+                rows={4}
+                name="comment"
+                id="comment"
+                className="block w-full rounded-md border-0 py-1.5 bg-base-200 text-gray-200 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                defaultValue={""}
+                value={noteContent}
+              />
+            </div>
+            <button onClick={() => deleteNoteById()}>Delete</button>
+          </div>
+        </main>
       </div>
     </>
   );

@@ -35,11 +35,6 @@ export default function Main() {
     setModalTitle("");
   };
 
-  const getNoteById = (id) => {
-    const foundNote = notes.find((note) => note.id === id);
-    return foundNote ? foundNote : null;
-  };
-
   const getTitleById = (id) => {
     const foundNote = notes.find((note) => note.id === id);
     return foundNote ? foundNote.title : null;

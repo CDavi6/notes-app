@@ -6,6 +6,7 @@ import { Bars3Icon, XMarkIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { useSelector, useDispatch } from "react-redux";
 import { addNote, deleteNote, updateNote } from "../store";
 import { v4 as uuidv4 } from "uuid";
+import { paste } from "@testing-library/user-event/dist/paste";
 
 const CreateBtn = [{ name: "Create Note", icon: PlusIcon }];
 
@@ -45,13 +46,36 @@ export default function Main() {
     }
   };
 
+  const copyContent = () => {
+    navigator.clipboard.writeText(noteContent);
+  };
+
+  const pasteContent = () => {
+    navigator.clipboard.readText()
+    .then(text => {
+      setNoteContent(noteContent + text);
+    })
+    .catch(err => {
+      alert("Failed to read clipboard contents.")
+    })
+  };
+
+  const clearContent = () => {
+    setNoteContent("");
+  };
+
   const handleContentChange = (event) => {
     setNoteContent(event.target.value);
-  }
+  };
 
   const getTitleById = (id) => {
     const foundNote = notes.find((note) => note.id === id);
     return foundNote ? foundNote.title : null;
+  };
+
+  const getContentById = (id) => {
+    const foundNote = notes.find((note) => note.id === id);
+    return foundNote ? foundNote.content : null;
   };
 
   const setContentById = (id) => {
@@ -294,7 +318,7 @@ export default function Main() {
           </button>
         </div>
 
-        <main className="py-10 lg:pl-72">
+        <main className="py-10 lg:pl-72 flex justify-center">
           {/* <-- Create Note Modal --> */}
           <div className="px-4 sm:px-6 lg:px-8">
             <dialog id="my_modal_1" className="modal">
@@ -318,7 +342,7 @@ export default function Main() {
                     value={modalTitle}
                   />
                 </div>
-                {modalTitle == "" && (
+                {modalTitle === "" && (
                   <span className="text-red-500">Title must not be blank.</span>
                 )}
                 <div className="modal-action">
@@ -347,14 +371,14 @@ export default function Main() {
           {/* <-- Create Note Modal --> */}
 
           {noteId && (
-            <div>
+            <div className="w-4/5">
               <label
                 htmlFor="comment"
-                className="block text-sm font-medium leading-6 text-gray-200"
+                className="block text-2xl font-medium leading-6 text-gray-200"
               >
                 {getTitleById(noteId)}
               </label>
-              <div className="mt-2">
+              <div className="mt-4">
                 <textarea
                   rows={4}
                   name="comment"
@@ -365,17 +389,53 @@ export default function Main() {
                   onChange={handleContentChange}
                 />
               </div>
+
+              {noteContent !== getContentById(noteId) && (
+                <button
+                  type="button"
+                  className="rounded-md m-2 bg-[#1eb854] px-3.5 py-2.5 text-sm font-semibold text-black shadow-sm hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                  onClick={() => handleUpdateNote()}
+                >
+                  Save
+                </button>
+              )}
+
               <button
                 type="button"
-                className="rounded-md bg-green-700 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                onClick={() => handleUpdateNote()}
+                className="rounded-md m-2 bg-[#1db990] px-3.5 py-2.5 text-sm font-semibold text-black shadow-sm hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                onClick={() => {
+                  copyContent();
+                }}
               >
-                Save
+                Copy
               </button>
+
               <button
                 type="button"
-                className="rounded-md bg-red-700 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                onClick={() => {deleteNoteById()}}
+                className="rounded-md m-2 btn-accent px-3.5 py-2.5 text-sm font-semibold text-black shadow-sm hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                onClick={() => {
+                  pasteContent();
+                }}
+              >
+                Paste
+              </button>
+
+              <button
+                type="button"
+                className="rounded-md m-2 btn-warning px-3.5 py-2.5 text-sm font-semibold text-black shadow-sm hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                onClick={() => {
+                  clearContent();
+                }}
+              >
+                Clear
+              </button>
+
+              <button
+                type="button"
+                className="rounded-md m-2 bg-red-500 px-3.5 py-2.5 text-sm font-semibold text-black shadow-sm hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                onClick={() => {
+                  deleteNoteById();
+                }}
               >
                 Delete
               </button>

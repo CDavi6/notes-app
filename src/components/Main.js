@@ -1,9 +1,11 @@
+//main.js
+
 import { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { useSelector, useDispatch } from "react-redux";
-import { addNote, deleteNote } from "../store";
-import {v4 as uuidv4} from 'uuid';
+import { addNote, deleteNote, updateNote } from "../store";
+import { v4 as uuidv4 } from "uuid";
 
 const CreateBtn = [{ name: "Create Note", icon: PlusIcon }];
 
@@ -23,8 +25,14 @@ export default function Main() {
   const dispatch = useDispatch();
 
   const addNoteHandler = () => {
-    const newNote = { id: uuidv4(), title: modalTitle, content: "" };
-    dispatch(addNote(newNote));
+    if (modalTitle != "") {
+      const newNote = { id: uuidv4(), title: modalTitle, content: "" };
+      dispatch(addNote(newNote));
+    }
+  };
+
+  const handleUpdateNote = () => {
+    dispatch(updateNote({ id: noteId, content: noteContent }));
   };
 
   const modalTitleHandler = (event) => {
@@ -32,8 +40,14 @@ export default function Main() {
   };
 
   const resetModalTitle = () => {
-    setModalTitle("");
+    if (modalTitle != "") {
+      setModalTitle("");
+    }
   };
+
+  const handleContentChange = (event) => {
+    setNoteContent(event.target.value);
+  }
 
   const getTitleById = (id) => {
     const foundNote = notes.find((note) => note.id === id);
@@ -46,6 +60,7 @@ export default function Main() {
   };
 
   const deleteNoteById = () => {
+    setNoteId(null);
     dispatch(deleteNote(noteId));
   };
 
@@ -163,6 +178,10 @@ export default function Main() {
                                         : "text-gray-400 hover:text-white hover:bg-gray-800",
                                       "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold cursor-pointer"
                                     )}
+                                    onClick={() => {
+                                      setNoteId(note.id);
+                                      setContentById(note.id);
+                                    }}
                                   >
                                     <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-gray-400 group-hover:text-white">
                                       {note.title.charAt(0).toUpperCase()}
@@ -246,7 +265,10 @@ export default function Main() {
                                 : "text-gray-400 hover:text-white hover:bg-gray-800",
                               "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold cursor-pointer"
                             )}
-                            onClick={() => {setNoteId(note.id); setContentById(note.id)}}
+                            onClick={() => {
+                              setNoteId(note.id);
+                              setContentById(note.id);
+                            }}
                           >
                             <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-gray-400 group-hover:text-white">
                               {note.title.charAt(0).toUpperCase()}
@@ -284,18 +306,21 @@ export default function Main() {
                     htmlFor="name"
                     className="absolute -top-2 left-2 inline-block bg-base-100 px-1 text-xs font-medium text-gray-200"
                   >
-                    Name
+                    Title
                   </label>
                   <input
                     type="text"
                     name="name"
                     id="name"
                     className="block w-full rounded-md border-0 py-1.5 bg-base-100 text-gray-200 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                    placeholder="Title"
+                    placeholder="..."
                     onChange={modalTitleHandler}
                     value={modalTitle}
                   />
                 </div>
+                {modalTitle == "" && (
+                  <span className="text-red-500">Title must not be blank.</span>
+                )}
                 <div className="modal-action">
                   {/* if there is a button in form, it will close the modal */}
                   <button
@@ -321,25 +346,41 @@ export default function Main() {
           </div>
           {/* <-- Create Note Modal --> */}
 
-          <div>
-            <label
-              htmlFor="comment"
-              className="block text-sm font-medium leading-6 text-gray-200"
-            >
-              {getTitleById(noteId)}
-            </label>
-            <div className="mt-2">
-              <textarea
-                rows={4}
-                name="comment"
-                id="comment"
-                className="block w-full rounded-md border-0 py-1.5 bg-base-200 text-gray-200 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                defaultValue={""}
-                value={noteContent}
-              />
+          {noteId && (
+            <div>
+              <label
+                htmlFor="comment"
+                className="block text-sm font-medium leading-6 text-gray-200"
+              >
+                {getTitleById(noteId)}
+              </label>
+              <div className="mt-2">
+                <textarea
+                  rows={4}
+                  name="comment"
+                  id="comment"
+                  className="block w-full rounded-md border-0 py-1.5 bg-base-200 text-gray-200 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  defaultValue={""}
+                  value={noteContent}
+                  onChange={handleContentChange}
+                />
+              </div>
+              <button
+                type="button"
+                className="rounded-md bg-green-700 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                onClick={() => handleUpdateNote()}
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                className="rounded-md bg-red-700 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                onClick={() => {deleteNoteById()}}
+              >
+                Delete
+              </button>
             </div>
-            <button onClick={() => deleteNoteById()}>Delete</button>
-          </div>
+          )}
         </main>
       </div>
     </>

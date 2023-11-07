@@ -24,6 +24,8 @@ export default function Main() {
   const notes = useSelector((state) => state.notes);
   const dispatch = useDispatch();
 
+  let draggingNoteId = null;
+
   const addNoteHandler = () => {
     if (modalTitle != "") {
       const newNote = { id: uuidv4(), title: modalTitle, content: "" };
@@ -88,23 +90,40 @@ export default function Main() {
     dispatch(deleteNote(noteId));
   };
 
-  function dragStart(event, noteId) {
-    event.dataTransfer.setData("text/plain", noteId);
+  // Function to display the content of a clicked note
+  function displayNoteContent(noteId) {
+    setNoteId(noteId);
+    setContentById(noteId);
+  }
+
+  // Function to initiate the drag-and-drop operation
+  function startDrag(event, noteId) {
+    draggingNoteId = noteId;
   }
 
   function allowDrop(event) {
     event.preventDefault();
   }
 
-  function drop(event) {
+  function drop(event, targetNoteId) {
     event.preventDefault();
-    const sourceNoteId = event.dataTransfer.getData("text/plain");
-    const targetNoteId = event.target.getAttribute("data-note-id");
-    const sourceIndex = notes.findIndex((note) => note.id === sourceNoteId);
+  
+    if (draggingNoteId === targetNoteId) {
+      // Prevent swapping with the same note
+      return;
+    }
+  
+    const sourceIndex = notes.findIndex((note) => note.id === draggingNoteId);
     const targetIndex = notes.findIndex((note) => note.id === targetNoteId);
-
-    dispatch(reorderNotes({ sourceIndex, targetIndex }));
-  }
+  
+    const updatedNotes = [...notes];
+    const [draggedNote] = updatedNotes.splice(sourceIndex, 1);
+    updatedNotes.splice(targetIndex, 0, draggedNote);
+  
+    // Dispatch action to update note order in the Redux store
+    dispatch(reorderNotes({ updatedNotes }));
+    draggingNoteId = null;
+  }  
 
   return (
     <>
@@ -222,11 +241,13 @@ export default function Main() {
                                     )}
                                     draggable="true"
                                     onDragStart={(event) =>
-                                      dragStart(event, note.id)
+                                      startDrag(event, note.id)
                                     }
                                     onDragOver={allowDrop}
-                                    onDrop={drop}
+                                    onDrop={(event) => drop(event, note.id)} // Pass the target note's ID
                                     data-note-id={note.id}
+                                    // Add a click event listener to display the content
+                                    onClick={() => displayNoteContent(note.id)}
                                   >
                                     <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-gray-400 group-hover:text-white">
                                       {note.title.charAt(0).toUpperCase()}
@@ -309,10 +330,12 @@ export default function Main() {
                               "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold cursor-pointer"
                             )}
                             draggable="true"
-                            onDragStart={(event) => dragStart(event, note.id)}
+                            onDragStart={(event) => startDrag(event, note.id)}
                             onDragOver={allowDrop}
-                            onDrop={drop}
+                            onDrop={(event) => drop(event, note.id)} // Pass the target note's ID
                             data-note-id={note.id}
+                            // Add a click event listener to display the content
+                            onClick={() => displayNoteContent(note.id)}
                           >
                             <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-gray-400 group-hover:text-white">
                               {note.title.charAt(0).toUpperCase()}

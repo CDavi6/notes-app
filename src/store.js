@@ -29,16 +29,14 @@ const notesSlice = createSlice({
       return { ...state, notes: updatedNotes };
     },
     reorderNotes: (state, action) => {
-      const { sourceIndex, targetIndex } = action.payload;
-      const updatedNotes = [...state.notes];
-      const [movedNote] = updatedNotes.splice(sourceIndex, 1);
-      updatedNotes.splice(targetIndex, 0, movedNote);
+      const { updatedNotes } = action.payload;
       return { ...state, notes: updatedNotes };
     },
   },
 });
 
-export const { addNote, deleteNote, updateNote, reorderNotes } = notesSlice.actions;
+export const { addNote, deleteNote, updateNote, reorderNotes } =
+  notesSlice.actions;
 
 const persistConfig = {
   key: "root",

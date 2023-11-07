@@ -2,15 +2,14 @@
 module.exports = {
   content: ["./src/**/*.{html,js}"],
   theme: {
-    extend: {},
+    extend: {
+      transitionProperty: {
+        height: "height",
+      },
+    },
   },
-  plugins: [
-    require("daisyui"),
-    require('@tailwindcss/forms'),
-  ],
+  plugins: [require("daisyui"), require("@tailwindcss/forms")],
   daisyui: {
-    themes: [
-      "dark",
-    ],
+    themes: ["dark"],
   },
 };

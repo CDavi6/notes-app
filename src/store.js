@@ -19,20 +19,26 @@ const notesSlice = createSlice({
       };
     },
     updateNote: (state, action) => {
-        const { id, content } = action.payload;
-        const updatedNotes = state.notes.map((note) => {
-          if (note.id === id) {
-            return { ...note, content };
-          }
-          return note;
-        });
-        return { ...state, notes: updatedNotes };
-      },
-      
+      const { id, content } = action.payload;
+      const updatedNotes = state.notes.map((note) => {
+        if (note.id === id) {
+          return { ...note, content };
+        }
+        return note;
+      });
+      return { ...state, notes: updatedNotes };
+    },
+    reorderNotes: (state, action) => {
+      const { sourceIndex, targetIndex } = action.payload;
+      const updatedNotes = [...state.notes];
+      const [movedNote] = updatedNotes.splice(sourceIndex, 1);
+      updatedNotes.splice(targetIndex, 0, movedNote);
+      return { ...state, notes: updatedNotes };
+    },
   },
 });
 
-export const { addNote, deleteNote, updateNote } = notesSlice.actions;
+export const { addNote, deleteNote, updateNote, reorderNotes } = notesSlice.actions;
 
 const persistConfig = {
   key: "root",

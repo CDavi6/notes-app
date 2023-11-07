@@ -4,9 +4,8 @@ import { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { useSelector, useDispatch } from "react-redux";
-import { addNote, deleteNote, updateNote } from "../store";
+import { addNote, deleteNote, updateNote, reorderNotes } from "../store";
 import { v4 as uuidv4 } from "uuid";
-import { paste } from "@testing-library/user-event/dist/paste";
 
 const CreateBtn = [{ name: "Create Note", icon: PlusIcon }];
 
@@ -51,13 +50,14 @@ export default function Main() {
   };
 
   const pasteContent = () => {
-    navigator.clipboard.readText()
-    .then(text => {
-      setNoteContent(noteContent + text);
-    })
-    .catch(err => {
-      alert("Failed to read clipboard contents.")
-    })
+    navigator.clipboard
+      .readText()
+      .then((text) => {
+        setNoteContent(noteContent + text);
+      })
+      .catch((err) => {
+        alert("Failed to read clipboard contents.");
+      });
   };
 
   const clearContent = () => {
@@ -87,6 +87,24 @@ export default function Main() {
     setNoteId(null);
     dispatch(deleteNote(noteId));
   };
+
+  function dragStart(event, noteId) {
+    event.dataTransfer.setData("text/plain", noteId);
+  }
+
+  function allowDrop(event) {
+    event.preventDefault();
+  }
+
+  function drop(event) {
+    event.preventDefault();
+    const sourceNoteId = event.dataTransfer.getData("text/plain");
+    const targetNoteId = event.target.getAttribute("data-note-id");
+    const sourceIndex = notes.findIndex((note) => note.id === sourceNoteId);
+    const targetIndex = notes.findIndex((note) => note.id === targetNoteId);
+
+    dispatch(reorderNotes({ sourceIndex, targetIndex }));
+  }
 
   return (
     <>
@@ -143,7 +161,7 @@ export default function Main() {
                       </button>
                     </div>
                   </Transition.Child>
-                  {/* Sidebar component, swap this element with another sidebar if you like */}
+                  {/* Sidebar component */}
                   <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6 pb-2 ring-1 ring-white/10">
                     <div className="flex h-16 shrink-0 items-center">
                       <svg
@@ -191,28 +209,29 @@ export default function Main() {
                           <div className="text-xs font-semibold leading-6 text-gray-400">
                             Your notes
                           </div>
-                          <ul role="list" className="-mx-2 mt-2 space-y-1">
+                          <ul role="list" class="-mx-2 space-y-1">
                             {notes &&
                               notes.map((note) => (
                                 <li key={note.id}>
                                   <a
-                                    className={classNames(
+                                    class={classNames(
                                       note.current
                                         ? "bg-gray-800 text-white"
-                                        : "text-gray-400 hover:text-white hover:bg-gray-800",
+                                        : "text-gray-400 hover:text-white hover-bg-gray-800",
                                       "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold cursor-pointer"
                                     )}
-                                    onClick={() => {
-                                      setNoteId(note.id);
-                                      setContentById(note.id);
-                                    }}
+                                    draggable="true"
+                                    onDragStart={(event) =>
+                                      dragStart(event, note.id)
+                                    }
+                                    onDragOver={allowDrop}
+                                    onDrop={drop}
+                                    data-note-id={note.id}
                                   >
-                                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-gray-400 group-hover:text-white">
+                                    <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-gray-400 group-hover:text-white">
                                       {note.title.charAt(0).toUpperCase()}
                                     </span>
-                                    <span className="truncate">
-                                      {note.title}
-                                    </span>
+                                    <span class="truncate">{note.title}</span>
                                   </a>
                                 </li>
                               ))}
@@ -278,26 +297,27 @@ export default function Main() {
                   <div className="text-xs font-semibold leading-6 text-gray-400">
                     Your notes
                   </div>
-                  <ul role="list" className="-mx-2 mt-2 space-y-1">
+                  <ul role="list" class="-mx-2 space-y-1">
                     {notes &&
                       notes.map((note) => (
                         <li key={note.id}>
                           <a
-                            className={classNames(
+                            class={classNames(
                               note.current
                                 ? "bg-gray-800 text-white"
-                                : "text-gray-400 hover:text-white hover:bg-gray-800",
+                                : "text-gray-400 hover:text-white hover-bg-gray-800",
                               "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold cursor-pointer"
                             )}
-                            onClick={() => {
-                              setNoteId(note.id);
-                              setContentById(note.id);
-                            }}
+                            draggable="true"
+                            onDragStart={(event) => dragStart(event, note.id)}
+                            onDragOver={allowDrop}
+                            onDrop={drop}
+                            data-note-id={note.id}
                           >
-                            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-gray-400 group-hover:text-white">
+                            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-gray-400 group-hover:text-white">
                               {note.title.charAt(0).toUpperCase()}
                             </span>
-                            <span className="truncate">{note.title}</span>
+                            <span class="truncate">{note.title}</span>
                           </a>
                         </li>
                       ))}
